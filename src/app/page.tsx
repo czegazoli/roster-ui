@@ -114,32 +114,3 @@ export default function Home() {
 }
 
 
-// ---- Runtime tests (non-blocking, console only) ----
-function runRosterTests() {
-  try {
-    // 1) emptyWeek structure
-    const pos = [{id:"a"},{id:"b"}];
-    const wk = emptyWeek(pos);
-    console.assert(DAYS.every(function(d){ return wk[d] && Array.isArray(wk[d]["a"]) && Array.isArray(wk[d]["b"]); }), "emptyWeek: arrays for positions per day");
-
-    // 2) addShift pushes an entry
-    let w = emptyWeek([{id:"p1"}]);
-    const add = function(day, pid, shift){ if(!w[day]) w[day] = {}; if(!w[day][pid]) w[day][pid] = []; w[day][pid].push(Object.assign({id:"x"}, shift)); };
-    add("Monday","p1",{staff:"A",start:"07:00",end:"15:00"});
-    console.assert(w.Monday.p1.length===1 && w.Monday.p1[0].staff==="A", "addShift should push a shift");
-
-    // 3) copy/paste day safety
-    const copied = clone(w.Monday); const positions = [{id:"p1"},{id:"p2"}]; const safe = {}; positions.forEach(function(p){ safe[p.id] = copied[p.id] ? clone(copied[p.id]) : []; });
-    console.assert(Array.isArray(safe.p2), "pasteDay should init missing arrays");
-
-    // 4) Finish display rule
-    const isFinish = function(end){ return !end; };
-    console.assert(isFinish(null) && isFinish("") && !isFinish("17:00"), "Finish rule when end empty");
-
-    // 5) ShiftBubble prop tolerance
-    const example = { staff: undefined, start: null, end: null };
-    console.assert(!example.staff && example.end === null, "ShiftBubble accepts undefined/null props");
-
-    console.log("RosterUI tests passed");
-  } catch (e) { console.warn("RosterUI tests error", e); }
-}
