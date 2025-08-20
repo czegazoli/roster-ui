@@ -145,24 +145,3 @@ function ShiftEditDialog() { const [state, setState] = useState<any>({ open:fals
 
 function RosterSettings({ staff, setStaff, positions, addPosition, removePosition }: any) { const [open, setOpen] = useState(false); const [newStaff, setNewStaff] = useState(""); return ( <Dialog open={open} onOpenChange={setOpen}> <DialogTrigger asChild> <Button variant="outline"><Settings2 className="w-4 h-4 mr-2"/>Settings</Button> </DialogTrigger> <DialogContent className="max-w-2xl"> <DialogHeader> <DialogTitle>Roster Settings</DialogTitle> <DialogDescription>Manage staff and positions.</DialogDescription> </DialogHeader> <Tabs defaultValue="staff"> <TabsList> <TabsTrigger value="staff">Staff</TabsTrigger> <TabsTrigger value="positions">Positions</TabsTrigger> </TabsList> <TabsContent value="staff" className="mt-4"> <div className="space-y-3"> <div className="flex items-center gap-2"> <Input placeholder="Add staff name" value={newStaff} onChange={function(e){ setNewStaff(e.target.value); }} className="h-8"/> <Button size="sm" onClick={function(){ if(newStaff.trim()){ setStaff(function(s: string[]){ return s.concat([newStaff.trim()]); }); setNewStaff(""); } }}>Add</Button> </div> <div className="grid sm:grid-cols-2 gap-2"> {staff.map(function(s: string,i: number){ return ( <div key={i} className="flex items-center justify-between border rounded-xl p-2"> <Input className="h-8" value={s} onChange={function(e){ setStaff(function(arr: string[]){ return arr.map(function(x,ix){ return ix===i?e.target.value:x; }); }); }} /> <Button variant="ghost" size="icon" onClick={function(){ setStaff(function(arr: string[]){ return arr.filter(function(_x,ix){ return ix!==i; }); }); }}>×</Button> </div> );})} </div> </div> </TabsContent> <TabsContent value="positions" className="mt-4"> <div className="space-y-2"> <AddPosition onAdd={addPosition} /> <div className="grid sm:grid-cols-2 gap-2"> {positions.map(function(p: any){ return ( <div key={p.id} className="flex items-center justify-between border rounded-xl p-2"> <Input className="h-8" value={p.name} onChange={function(){ /* Position names are edited inline in main grid */ }} /> <Button variant="ghost" size="sm" onClick={function(){ removePosition(p.id); }}>Remove</Button> </div> );})} </div> </div> </TabsContent> </Tabs> </DialogContent> </Dialog> ); }
 
-// ---- Runtime tests (console only, non-blocking) ---- (function runRosterTests(){ try { const pos = [{id:"a"},{id:"b"}]; const wk = emptyWeek(pos); console.assert(DAYS.every(function(d){ return wk[d] && Array.isArray(wk[d]["a"]) && Array.isArray(wk[d]["b"]); }), "emptyWeek: arrays for positions per day");
-
-const w = emptyWeek([{id:"p1"}]);
-const add = function(day: string, pid: string, shift: any){ if(!w[day]) (w as any)[day] = {}; if(!w[day][pid]) (w as any)[day][pid] = []; (w as any)[day][pid].push({id:"x", ...shift}); };
-add("Monday","p1",{staff:"A",start:"07:00",end:"15:00"});
-console.assert((w as any).Monday.p1.length===1 && (w as any).Monday.p1[0].staff==="A", "addShift should push a shift");
-
-const copied = clone((w as any).Monday); const positions = [{id:"p1"},{id:"p2"}]; const safe: any = {}; positions.forEach(function(p){ safe[p.id] = (copied as any)[p.id] ? clone((copied as any)[p.id]) : []; });
-console.assert(Array.isArray(safe.p2), "pasteDay should init missing arrays");
-
-const isFinish = function(end: any){ return !end; };
-console.assert(isFinish(null) && isFinish("") && !isFinish("17:00"), "Finish rule when end empty");
-
-const example = { staff: undefined as any, start: null as any, end: null as any };
-console.assert(!example.staff && example.end === null, "ShiftBubble accepts undefined/null props");
-
-// eslint-disable-next-line no-console
-console.log("RosterUI tests passed");
-
-} catch (e) { /* eslint-disable no-console */ console.warn("RosterUI tests error", e); } })();
-
