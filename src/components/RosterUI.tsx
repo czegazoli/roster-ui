@@ -469,4 +469,4 @@ function runRosterTests() {
     console.log("RosterUI tests passed");
   } catch (e) { console.warn("RosterUI tests error", e); }
 }
-export default function RosterUI() { ... }
+
