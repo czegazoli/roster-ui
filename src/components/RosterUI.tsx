@@ -1,76 +1,45 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter, useDroppable } from "@dnd-kit/core";
-import { SortableContext, useSortable, rectSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format, addDays, startOfWeek } from "date-fns";
-import { Copy, ClipboardPaste, Plus, Settings2, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react"; import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter, useDroppable } from "@dnd-kit/core"; import { SortableContext, useSortable, rectSortingStrategy } from "@dnd-kit/sortable"; import { CSS } from "@dnd-kit/utilities"; import { Button } from "@/components/ui/button"; import { Input } from "@/components/ui/input"; import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"; import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; import { Calendar } from "@/components/ui/calendar"; import { format, addDays, startOfWeek } from "date-fns"; import { Copy, ClipboardPaste, Plus, Settings2, ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
- * Roster UI — bubble layout (ES2019-safe)
- * - Rows = Positions, Columns = Days
- * - Shifts are compact bubbles: Name on first line; times beneath in small dark-grey text, slightly right-shifted.
- * - Strict dropdown for staff (no free text). Click bubble to edit.
- * - Drag & drop: dragging the whole bubble; dropping onto a bubble inserts ABOVE it.
- * - Position names centered; inline edit appears on hover only. No delete icon in the grid.
- * - Copy/Paste day, week navigation, localStorage persistence.
- */
+
+Roster UI — bubble layout (ES2019-safe)
+
+Rows = Positions, Columns = Days
 
 
-// ---- Constants & helpers ----
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-function uid() { return Math.random().toString(36).slice(2, 9); }
-function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+Shifts are compact bubbles: Name on first line; times beneath in small dark-grey text, slightly right-shifted.
 
-const LS_KEY = "roster-ui-state-v1";
-function loadState() {
-  try { const raw = typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : null; return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
-}
-function saveState(state) { try { if (typeof window !== "undefined") window.localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
 
-// ---- Defaults (provided by user) ----
-const defaultPositions = [
-  { id: uid(), name: "HC Mix" },
-  { id: uid(), name: "HC Kitchen" },
-  { id: uid(), name: "HC Washroom" },
-  { id: uid(), name: "HC Grunwald" },
-  { id: uid(), name: "HC Grunwald 2." },
-  { id: uid(), name: "HC Scanima" },
-  { id: uid(), name: "LC Goods In" },
-  { id: uid(), name: "LC Salad packing" },
-  { id: uid(), name: "LC Kitchen 2." },
-  { id: uid(), name: "LC Potato room" },
-  { id: uid(), name: "LC Packaging labels" },
-  { id: uid(), name: "Van run" },
-  { id: uid(), name: "Cleaning" },
-];
+Strict dropdown for staff (no free text). Click bubble to edit.
 
-const defaultStaff = [
-  "Adrian L.", "Aga", "Ann P.", "Anton", "Arek S.", "Aziz A.", "Barbara S.", "Catriona C.", "Eftikhar M.",
-  "Fergal F.", "Gerard L.", "Hafizullah", "Haroon O.", "Holly", "James G.", "John M.", "Jolanta W.", "Justyna P.",
-  "Leo", "Lexis B.", "Luciana", "Madaci M.", "Martin F.", "Mary", "Michael G.", "Mohamed Y.", "Muhib Tareen",
-  "Nabil", "Nazih B.", "Nouar M.", "Radik", "Rene C.", "Roma", "Rosangela", "Safdar K.", "Salman A.", "Seafallah A.",
-  "Simon F.", "Tatiana G.", "Tatiana M.", "Vaidas Z", "Vice P.", "Vick P.", "Vlado A.", "Volodymyr M.", "Zarina",
-  "Zoltan K.", "Guilherme D.", "Lucas", "Oluwole"
-];
 
-function emptyWeek(positions) {
-  var base = {};
-  for (var i = 0; i < DAYS.length; i++) { var d = DAYS[i]; base[d] = {}; for (var j = 0; j < positions.length; j++) base[d][positions[j].id] = []; }
-  return base;
-}
+Drag & drop: dragging the whole bubble; dropping onto a bubble inserts ABOVE it.
 
-// Global dialog setter so Sortable children can open the editor
-let editDialogSetState = null;
-function openEditShiftDialog(args){ if (editDialogSetState) editDialogSetState(Object.assign({ open: true }, args)); }
+
+Position names centered; inline edit appears on hover only. No delete icon in the grid.
+
+
+Copy/Paste day, week navigation, localStorage persistence. */
+
+
+
+// ---- Constants & helpers ---- const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]; function uid() { return Math.random().toString(36).slice(2, 9); } function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+const LS_KEY = "roster-ui-state-v1"; function loadState() { try { const raw = typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : null; return raw ? JSON.parse(raw) : null; } catch (e) { return null; } } function saveState(state) { try { if (typeof window !== "undefined") window.localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---- Defaults (provided by user) ---- const defaultPositions = [ { id: uid(), name: "HC Mix" }, { id: uid(), name: "HC Kitchen" }, { id: uid(), name: "HC Washroom" }, { id: uid(), name: "HC Grunwald" }, { id: uid(), name: "HC Grunwald 2." }, { id: uid(), name: "HC Scanima" }, { id: uid(), name: "LC Goods In" }, { id: uid(), name: "LC Salad packing" }, { id: uid(), name: "LC Kitchen 2." }, { id: uid(), name: "LC Potato room" }, { id: uid(), name: "LC Packaging labels" }, { id: uid(), name: "Van run" }, { id: uid(), name: "Cleaning" }, ];
+
+const defaultStaff = [ "Adrian L.", "Aga", "Ann P.", "Anton", "Arek S.", "Aziz A.", "Barbara S.", "Catriona C.", "Eftikhar M.", "Fergal F.", "Gerard L.", "Hafizullah", "Haroon O.", "Holly", "James G.", "John M.", "Jolanta W.", "Justyna P.", "Leo", "Lexis B.", "Luciana", "Madaci M.", "Martin F.", "Mary", "Michael G.", "Mohamed Y.", "Muhib Tareen", "Nabil", "Nazih B.", "Nouar M.", "Radik", "Rene C.", "Roma", "Rosangela", "Safdar K.", "Salman A.", "Seafallah A.", "Simon F.", "Tatiana G.", "Tatiana M.", "Vaidas Z", "Vice P.", "Vick P.", "Vlado A.", "Volodymyr M.", "Zarina", "Zoltan K.", "Guilherme D.", "Lucas", "Oluwole" ];
+
+function emptyWeek(positions) { const base = {}; for (let i = 0; i < DAYS.length; i++) { const d = DAYS[i]; base[d] = {}; for (let j = 0; j < positions.length; j++) base[d][positions[j].id] = []; } return base; }
+
+// Global dialog setter so Sortable children can open the editor let editDialogSetState = null; function openEditShiftDialog(args){ if (editDialogSetState) editDialogSetState(Object.assign({ open: true }, args)); }
+
+// ... rest of the code unchanged ...
+
+
 
 export default function RosterUI() {
   const saved = loadState() || {};
