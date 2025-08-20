@@ -1,6 +1,6 @@
 import Image from "next/image";
 // src/app/page.tsx
-import RosterUI from "@/components/UI/RosterUI";
+import RosterUI from "@/components/UI";
 
 export default function Page() {
   return (
