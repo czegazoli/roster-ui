@@ -24,6 +24,7 @@ import { Copy, ClipboardPaste, Plus, Settings2, ChevronLeft, ChevronRight } from
  * - Copy/Paste day, week navigation, localStorage persistence.
  */
 
+
 // ---- Constants & helpers ----
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -429,7 +430,7 @@ function RosterSettings({ staff, setStaff, positions, addPosition, removePositio
               <div className="grid sm:grid-cols-2 gap-2">
                 {positions.map(function(p){ return (
                   <div key={p.id} className="flex items-center justify-between border rounded-xl p-2">
-                    <Input className="h-8" value={p.name} onChange={function(e){ /* Position names are edited inline in main grid */ }} />
+                    <Input className="h-8" value={p.name} onChange={function(){ /* Position names are edited inline in main grid */ }} />
                     <Button variant="ghost" size="sm" onClick={function(){ removePosition(p.id); }}>Remove</Button>
                   </div>
                 );})}
@@ -451,7 +452,7 @@ function runRosterTests() {
     console.assert(DAYS.every(function(d){ return wk[d] && Array.isArray(wk[d]["a"]) && Array.isArray(wk[d]["b"]); }), "emptyWeek: arrays for positions per day");
 
     // 2) addShift pushes an entry
-    let w = emptyWeek([{id:"p1"}]);
+    const w = emptyWeek([{id:"p1"}]);
     const add = function(day, pid, shift){ if(!w[day]) w[day] = {}; if(!w[day][pid]) w[day][pid] = []; w[day][pid].push(Object.assign({id:"x"}, shift)); };
     add("Monday","p1",{staff:"A",start:"07:00",end:"15:00"});
     console.assert(w.Monday.p1.length===1 && w.Monday.p1[0].staff==="A", "addShift should push a shift");
@@ -471,4 +472,3 @@ function runRosterTests() {
     console.log("RosterUI tests passed");
   } catch (e) { console.warn("RosterUI tests error", e); }
 }
-
