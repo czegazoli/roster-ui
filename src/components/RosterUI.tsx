@@ -585,7 +585,7 @@ function TopBar() {
     <header className="w-full bg-[#0b1d2b] text-white shadow-sm">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="font-bold tracking-wide">HR Duo</div>
+          <div className="font-bold tracking-wide">HR Demo</div>
           <TopLink active>Dashboard</TopLink>
           <TopLink>
             Calendar <ChevronDown className="w-3 h-3 ml-1" />
