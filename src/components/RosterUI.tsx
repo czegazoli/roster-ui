@@ -774,7 +774,7 @@ function DayCell({
             className="h-7 px-2 text-xs rounded-lg"
           >
             <Plus className="w-3 h-3 mr-1" />
-            Roster Start Date
+            Add shift
           </Button>
         </DialogTrigger>
         <DialogContent>
