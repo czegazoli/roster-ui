@@ -45,6 +45,16 @@ import {
   Clock,
   LayoutList,
 } from "lucide-react";
+function Watermark() {
+  return (
+    <div className="pointer-events-none fixed bottom-4 right-4 z-[9999]">
+      <span className="select-none text-[12px] px-2 py-1 rounded-md bg-white/80 text-gray-600 border">
+        Only for demonstration purposes
+      </span>
+    </div>
+  );
+}
+
 
 /**
  * Roster UI — styled to mirror the screenshot and with a static top bar
@@ -575,6 +585,7 @@ export default function RosterUI() {
           </Button>
         </div>
       </main>
+      <Watermark />
     </div>
   );
 }
